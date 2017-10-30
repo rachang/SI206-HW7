@@ -82,31 +82,28 @@ def getLocationWithCaching(loc):
         return CACHE_DICTION[loc]
     else:
         print("fetching")
-        uh = urllib.request.urlopen(url)
-        data = uh.read().decode()
-        try:
-            CACHE_DICTION[loc] =  json.loads(data)
-            dumped_json_cache = json.dumps(CACHE_DICTION)
-            fw = open(CACHE_FNAME,"w")
-            fw.write(dumped_json_cache)
-            fw.close() # Close the open file
-            return CACHE_DICTION[loc]
-        except:
-            print("Wasn't in cache and wasn't valid search either")
-            return None
-
+        data = api.search(q = user_input)
+        CACHE_DICTION[loc] = data
+        dumped_json_cache = json.dumps(CACHE_DICTION)
+        fw = open(CACHE_FNAME,"w")
+        fw.write(dumped_json_cache)
+        fw.close() # Close the open file
+        return CACHE_DICTION[loc]
 ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 ##		data you got back!
 while True:
     user_input = input('Enter Tweet term: ')
-    umich_tweet = results["statuses"][4]
-    list_of_umich_tweets = results["statuses"]
+    results = getLocationWithCaching(user_input)
+    umich_tweets = []
+    for i in range(5):
+    	umich_tweets.append(results["statuses"][i])
+    for tweet in umich_tweets:
+    	print("TEXT: ",tweet["text"])
+    	print("CREATED AT: ", tweet["created_at"], "\n")
+    # print(umich_tweets)
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
-for tweet in list_of_umich_tweets:
-	print(tweet["text"])
-    print("\n")
 
 
 
