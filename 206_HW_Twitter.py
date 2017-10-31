@@ -60,10 +60,20 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 ## Write the rest of your code here!
 
+#added for encoding
+import sys
+def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
+    enc = file.encoding
+    if enc == 'UTF-8':
+        print(*objects, sep=sep, end=end, file=file)
+    else:
+        f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
+        print(*map(f, objects), sep=sep, end=end, file=file)
+
 #### Recommended order of tasks: ####
 ## 1. Set up the caching pattern start -- the dictionary and the try/except 
 ## 		statement shown in class.
-CACHE_FNAME = 'cache_geo_locations.json'
+CACHE_FNAME = 'cache_tweets.json'
 try:
     cache_file = open(CACHE_FNAME, 'r') # Try to read the data from the file
     cache_contents = cache_file.read()  # If it's there, get it into a string
@@ -76,36 +86,36 @@ except:
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
 ##		to search for is. 
-def getLocationWithCaching(loc):
-    if loc in CACHE_DICTION:
+def getTweetWithCaching(tweets):
+    if tweets in CACHE_DICTION:
         print("Using cache")
-        return CACHE_DICTION[loc]
+        return CACHE_DICTION[tweets]
     else:
         print("fetching")
-        data = api.search(q = user_input)
-        CACHE_DICTION[loc] = data
+        results = api.search(q = user_input)
+        CACHE_DICTION[tweets] = results
         dumped_json_cache = json.dumps(CACHE_DICTION)
         fw = open(CACHE_FNAME,"w")
         fw.write(dumped_json_cache)
         fw.close() # Close the open file
-        return CACHE_DICTION[loc]
+        return CACHE_DICTION[tweets]
 ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 ##		data you got back!
-while True:
+#search for tweets with three different phrases of the user's choice
+for x in range(3):
     user_input = input('Enter Tweet term: ')
-    results = getLocationWithCaching(user_input)
+    data = getTweetWithCaching(user_input)
     umich_tweets = []
+#the first FIVE tweets
     for i in range(5):
-    	umich_tweets.append(results["statuses"][i])
-    for tweet in umich_tweets:
-    	print("TEXT: ",tweet["text"])
-    	print("CREATED AT: ", tweet["created_at"], "\n")
-    # print(umich_tweets)
+    	umich_tweets.append(data["statuses"][i])
 ## 4. With what you learn from the data -- e.g. how exactly to find the 
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
-
-
+#prints out the Tweet text and the created_at value
+    for tweet in umich_tweets:
+    	uprint("TEXT: ",tweet["text"])
+    	uprint("CREATED AT: ", tweet["created_at"], "\n")
 
 
 
